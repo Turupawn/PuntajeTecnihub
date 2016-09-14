@@ -1,0 +1,94 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.1.0/milligram.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://trello.com/1/client.js?key=ae3ab7813e41fff4df3f0760bb7bda88"></script>
+
+<h1>Desglose de puntaje de Ing. de Software</h1>
+
+<h2>Equipo: Tecnihub</h2>
+<ul>
+  <li><b id="current_grade"></b></li>
+  <li><b id="participants"></b></li>
+  <li><b id="description"></b></li>
+  <li><b id="tech"></b></li>
+</ul>
+
+<h3>Desglose de puntos</h3>
+<table id="grades">
+</table>
+
+<h3>Progreso</h3>
+<div id="progress"></div>
+
+<script>
+
+var authenticationSuccess = function() {
+
+  Trello.get("/lists/57c8e5a553c06b8bbcf5767b/cards",
+    function(data)
+    {
+      var names = []
+      var nums = []
+      var nums_sum = 0.0
+      var integrantes = 2.0
+      var description = "Red social de trabajos tecnicos"
+      var tech = "Bootstrap, Laravel, PHP"
+      for(i=0;i<data.length;i++)
+      {
+        names.push(data[i].name)
+        j=data[i].name.length-1
+        while(data[i].name[j]!=' ')
+        {
+          j--
+        }
+        j++
+        var str_num=""
+        for(;j<data[i].name.length;j++)
+        {
+          str_num+=data[i].name[j]
+        }
+        nums.push(parseFloat(str_num))
+      }
+      var str_grades_append=""
+      for(i=0;i<names.length;i++)
+      {
+        str_grades_append+="<tr>"
+        str_grades_append+="<td>"+names[i]+"</td>"
+        str_grades_append+="<td>"+nums[i]+"</td>"
+        str_grades_append+="</tr>"
+        nums_sum+=nums[i]
+      }
+      str_grades_append+="<tr><td><b>Total grupal:</b></td><td><b>"+nums_sum+"/"+(100*integrantes)+"</b></td></tr>"
+      str_grades_append+="<tr><td><b>Total para cada alumno alumno:</b></td><td><b>"+(nums_sum/integrantes)+"/100</b></td></tr>"
+
+      $("#current_grade").append("Nota actual para cada alumno (puntos oro): "+(nums_sum/integrantes) +"%");
+      $("#participants").append(integrantes +" integrantes en el grupo");
+      $("#description").append("Descripcion del proyecto: "+description);
+      $("#tech").append("Tecnologia usada: "+tech);
+
+      $("#grades").append(str_grades_append);
+      $("#progress").append("<progress value='"+(nums_sum/integrantes)+"' max='100'>");
+    },
+    function()
+    {
+      console.log("errorcito");
+    }
+  )};
+
+  var authenticationFailure = function() {
+    console.log("fail");
+  };
+
+  Trello.authorize({
+    type: 'popup',
+    name: 'Getting Started Application',
+    scope: {
+      read: 'true',
+      write: 'true' },
+    expiration: 'never',
+    success: authenticationSuccess,
+    error: authenticationFailure
+  });
+</script>
